@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AudioTheme" load_steps=2 format=3 uid="uid://d70xost7hk1i"]
+
+[ext_resource type="Script" path="res://core/systems/audio/audio_theme.gd" id="1_7ff30"]
+
+[resource]
+script = ExtResource("1_7ff30")
+intro = ""
+focus = "res://assets/audio/interface/536764__egomassive__toss.ogg"
+select = "res://assets/audio/interface/96127__bmaczero__contact1.ogg"
+open_menu = ""

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b2o7yd21t4wfg"]
+
+[ext_resource type="Script" path="res://core/systems/user_interface/audio_theme_setter.gd" id="1_2f67i"]
+
+[node name="AudioThemeSetter" type="Node"]
+script = ExtResource("1_2f67i")

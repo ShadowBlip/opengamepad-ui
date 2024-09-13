@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://djdvu2nxovgxv"]
+
+[ext_resource type="Script" path="res://core/systems/effects/play_audio_theme_effect.gd" id="1_emgpn"]
+
+[node name="PlayAudioThemeEffect" type="Node"]
+script = ExtResource("1_emgpn")
+on_signal = ""
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
