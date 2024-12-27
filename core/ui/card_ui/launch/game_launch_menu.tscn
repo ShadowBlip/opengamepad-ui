@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://bcdk1lj6enq3l"]
+[gd_scene load_steps=24 format=3 uid="uid://bcdk1lj6enq3l"]
 
 [ext_resource type="Script" path="res://core/ui/card_ui/launch/game_launch_menu.gd" id="1_u3ehs"]
 [ext_resource type="Texture2D" uid="uid://d1mksukdkqorr" path="res://assets/images/placeholder-grid-banner.png" id="2_oae7b"]
@@ -15,7 +15,9 @@
 [ext_resource type="PackedScene" uid="uid://cr83fmlociwko" path="res://core/ui/components/card_icon_button.tscn" id="15_f3ktw"]
 [ext_resource type="PackedScene" uid="uid://b76dvfuouhlwd" path="res://core/systems/state/state_updater.tscn" id="15_lat8h"]
 [ext_resource type="Resource" uid="uid://cx8u1y5j7vyss" path="res://assets/state/states/gamepad_settings.tres" id="17_7ydn0"]
+[ext_resource type="PackedScene" uid="uid://b4u8djfdc4kea" path="res://core/ui/components/install_location_dialog.tscn" id="18_j25yi"]
 [ext_resource type="Resource" uid="uid://3vw3bk76d88w" path="res://assets/state/states/game_settings.tres" id="19_b21vy"]
+[ext_resource type="PackedScene" uid="uid://18axsy5my1x6" path="res://core/ui/components/install_options_dialog.tscn" id="19_k020t"]
 [ext_resource type="Texture2D" uid="uid://dj1ohb74chydb" path="res://assets/ui/icons/round-delete-forever.svg" id="21_agq5k"]
 
 [sub_resource type="Animation" id="Animation_ou6f5"]
@@ -252,3 +254,13 @@ size_flags_vertical = 4
 theme_override_styles/fill = SubResource("StyleBoxFlat_7fb8y")
 value = 50.0
 rounded = true
+
+[node name="InstallLocationDialog" parent="." instance=ExtResource("18_j25yi")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+
+[node name="InstallOptionsDialog" parent="." instance=ExtResource("19_k020t")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1

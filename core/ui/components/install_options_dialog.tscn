@@ -1,0 +1,111 @@
+[gd_scene load_steps=7 format=3 uid="uid://18axsy5my1x6"]
+
+[ext_resource type="Script" path="res://core/ui/components/install_options_dialog.gd" id="1_khr1a"]
+[ext_resource type="PackedScene" uid="uid://bw8113ocotx2r" path="res://core/systems/effects/fade_effect.tscn" id="2_2dmlt"]
+[ext_resource type="PackedScene" uid="uid://c71ayw7pcw6u6" path="res://core/ui/components/card_button.tscn" id="2_gupdw"]
+[ext_resource type="PackedScene" uid="uid://ekhjpmat02f8" path="res://core/systems/effects/slide_effect.tscn" id="3_yy6n3"]
+[ext_resource type="PackedScene" uid="uid://8m20p2s0v5gb" path="res://core/systems/input/focus_group.tscn" id="4_ap5s1"]
+[ext_resource type="PackedScene" uid="uid://xei5afwefxud" path="res://core/ui/components/dropdown.tscn" id="5_pwq2o"]
+
+[node name="InstallOptionsDialog" type="Control"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_khr1a")
+text = "Select a location to install"
+custom_maximum_size = Vector2i(0, 600)
+
+[node name="FadeEffect" parent="." node_paths=PackedStringArray("target") instance=ExtResource("2_2dmlt")]
+unique_name_in_owner = true
+target = NodePath("..")
+fade_speed = 0.2
+on_signal = "opened"
+fade_out_signal = "closed"
+on_signal = "opened"
+
+[node name="SlideEffect" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_yy6n3")]
+target = NodePath("../Spacer")
+slide_speed = 0.4
+margin = 0
+direction = "up"
+on_signal = "opened"
+slide_out_signal = "closed"
+on_signal = "opened"
+
+[node name="Spacer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CenterContainer" type="CenterContainer" parent="Spacer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -188.5
+offset_top = -58.5
+offset_right = 148.5
+offset_bottom = 18.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="Spacer/CenterContainer"]
+custom_minimum_size = Vector2(450, 0)
+layout_mode = 2
+theme_type_variation = &"PowerMenu"
+
+[node name="MarginContainer" type="MarginContainer" parent="Spacer/CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Spacer/CenterContainer/PanelContainer/MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(410, 188)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Spacer/CenterContainer/PanelContainer/MarginContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_right = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Spacer/CenterContainer/PanelContainer/MarginContainer/ScrollContainer/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="FocusGroup" parent="Spacer/CenterContainer/PanelContainer/MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" node_paths=PackedStringArray("current_focus") instance=ExtResource("4_ap5s1")]
+unique_name_in_owner = true
+current_focus = NodePath("../ConfirmButton")
+
+[node name="Label" type="Label" parent="Spacer/CenterContainer/PanelContainer/MarginContainer/ScrollContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Install Options"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Dropdown" parent="Spacer/CenterContainer/PanelContainer/MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("5_pwq2o")]
+layout_mode = 2
+
+[node name="ConfirmButton" parent="Spacer/CenterContainer/PanelContainer/MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("2_gupdw")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "OK"
+
+[node name="CancelButton" parent="Spacer/CenterContainer/PanelContainer/MarginContainer/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("2_gupdw")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Cancel"

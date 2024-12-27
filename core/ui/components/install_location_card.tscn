@@ -1,0 +1,110 @@
+[gd_scene load_steps=7 format=3 uid="uid://cuxskwtc3lqnu"]
+
+[ext_resource type="Script" path="res://core/ui/components/install_location_card.gd" id="1_x8y8g"]
+[ext_resource type="PackedScene" uid="uid://c5sfkhrfbao71" path="res://core/systems/effects/play_audio_effect.tscn" id="2_0k85l"]
+[ext_resource type="PackedScene" uid="uid://bw8113ocotx2r" path="res://core/systems/effects/fade_effect.tscn" id="3_6v8pv"]
+[ext_resource type="Texture2D" uid="uid://bidhj1jikg827" path="res://assets/icons/interface-hdd.svg" id="7_xfusj"]
+
+[sub_resource type="Gradient" id="Gradient_2e33l"]
+colors = PackedColorArray(0.741176, 0.576471, 0.976471, 1, 1, 0.47451, 0.776471, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_s4kc6"]
+gradient = SubResource("Gradient_2e33l")
+fill = 1
+fill_to = Vector2(1, 2)
+
+[node name="InstallLocationCard" type="MarginContainer"]
+offset_right = 272.0
+offset_bottom = 229.0
+focus_mode = 2
+script = ExtResource("1_x8y8g")
+
+[node name="PlayFocusAudioEffect" parent="." instance=ExtResource("2_0k85l")]
+on_signal = "focus_entered"
+
+[node name="PlaySelectedAudioEffect" parent="." instance=ExtResource("2_0k85l")]
+audio = "res://assets/audio/interface/select_002.ogg"
+on_signal = "pressed"
+
+[node name="HighlightFadeEffect" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_6v8pv")]
+target = NodePath("../PanelContainer/HighlightTexture")
+on_signal = "focus_entered"
+fade_out_signal = "focus_exited"
+on_signal = "focus_entered"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+clip_children = 2
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_type_variation = &"PluginStoreCard"
+
+[node name="HighlightTexture" type="TextureRect" parent="PanelContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+texture = SubResource("GradientTexture2D_s4kc6")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="InsidePanelMargin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="InsidePanel" type="Panel" parent="InsidePanelMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PluginStoreCard"
+
+[node name="EdgeMarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="LayoutHBox" type="HBoxContainer" parent="EdgeMarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="IconTextureRect" type="TextureRect" parent="EdgeMarginContainer/LayoutHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture = ExtResource("7_xfusj")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DriveDataVBox" type="VBoxContainer" parent="EdgeMarginContainer/LayoutHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 20
+
+[node name="DriveName" type="Label" parent="EdgeMarginContainer/LayoutHBox/DriveDataVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Lipsum Industries SSD
+"
+horizontal_alignment = 2
+
+[node name="Description" type="Label" parent="EdgeMarginContainer/LayoutHBox/DriveDataVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "Description of the drive thing here"
+horizontal_alignment = 2
+autowrap_mode = 3
+
+[node name="DriveSize" type="Label" parent="EdgeMarginContainer/LayoutHBox/DriveDataVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1337 Gb"
+horizontal_alignment = 2
+
+[node name="SpaceUsedProgressBar" type="ProgressBar" parent="EdgeMarginContainer/LayoutHBox/DriveDataVBox"]
+unique_name_in_owner = true
+layout_mode = 2

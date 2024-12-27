@@ -33,7 +33,6 @@ autowrap_mode = 3
 [node name="OptionButton" type="OptionButton" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
-item_count = 1
 fit_to_longest_item = false
+item_count = 1
 popup/item_0/text = "None"
-popup/item_0/id = 0
