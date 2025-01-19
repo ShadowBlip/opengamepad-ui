@@ -23,8 +23,13 @@ signal install_progressed(item: LibraryLaunchItem, percent_completed: float)
 signal launch_item_added(item: LibraryLaunchItem)
 ## Should be emitted when a library item was removed from the library
 signal launch_item_removed(item: LibraryLaunchItem)
+## Should be emitted when a library item is moved to a different install location
+signal move_completed(item: LibraryLaunchItem, success: bool)
+## Should be emitted when a library item move is progressing
+signal move_progressed(item: LibraryLaunchItem, percent_completed: float)
 
-var LibraryManager := load("res://core/global/library_manager.tres") as LibraryManager
+var LibraryManager := load("res://core/global/library_manager.tres") as LibraryManager # TODO: Remove this
+var library_manager := load("res://core/global/library_manager.tres") as LibraryManager
 
 ## Unique identifier for the library
 @export var library_id: String
@@ -45,7 +50,7 @@ var LibraryManager := load("res://core/global/library_manager.tres") as LibraryM
 
 func _init() -> void:
 	add_to_group("library")
-	ready.connect(LibraryManager.register_library.bind(self))
+	ready.connect(library_manager.register_library.bind(self))
 
 
 # Called when the node enters the scene tree for the first time.
@@ -71,27 +76,35 @@ func get_library_launch_items() -> Array[LibraryLaunchItem]:
 	return []
 
 
-## Installs the given library item. This method should be overriden in the 
-## child class, if it supports it.
-func install(item: LibraryLaunchItem) -> void:
-	pass
+## Returns an array of available install locations for this library provider.
+## This method should be overridden in the child class.
+## Example:
+##   [codeblock]
+##   func get_available_install_locations() -> Array[InstallLocation]:
+##       var location := InstallLocation.new()
+##       location.name = "/"
+##       return [location]
+##   [/codeblock]
+func get_available_install_locations(item: LibraryLaunchItem = null) -> Array[InstallLocation]:
+	return []
 
 
-## Updates the given library item. This method should be overriden in the 
-## child class, if it supports it.
-func update(item: LibraryLaunchItem) -> void:
-	pass
-
-
-## Uninstalls the given library item. This method should be overriden in the 
-## child class if it supports it.
-func uninstall(item: LibraryLaunchItem) -> void:
-	pass
-
-
-## Should return true if the given library item has an update available
-func has_update(item: LibraryLaunchItem) -> bool:
-	return false
+## Returns an array of install options for the given [LibraryLaunchItem].
+## Install options are arbitrary and are provider-specific. They allow the user
+## to select things like the language of a game to install, etc.
+## Example:
+##   [codeblock]
+##   func get_install_options(item: LibraryLaunchItem) -> Array[InstallOption]:
+##       var option := InstallOption.new()
+##       option.id = "lang"
+##       option.name = "Language"
+##       option.description = "Language of the game to install"
+##       option.values = ["english", "spanish"]
+##       option.value_type = TYPE_STRING
+##       return [option]
+##   [/codeblock]
+func get_install_options(item: LibraryLaunchItem) -> Array[InstallOption]:
+	return []
 
 
 ## This method should be overridden if the library requires executing callbacks
@@ -102,5 +115,60 @@ func get_app_lifecycle_hooks() -> Array[AppLifecycleHook]:
 	return hooks
 
 
+## [DEPRECATED]
+## Installs the given library item. This method should be overriden in the 
+## child class, if it supports it.
+func install(item: LibraryLaunchItem) -> void:
+	pass
+
+
+## Installs the given library item to the given location. This method should be
+## overridden in the child class, if it supports it.
+func install_to(item: LibraryLaunchItem, location: InstallLocation = null, options: Dictionary = {}) -> void:
+	install(item)
+
+
+## Updates the given library item. This method should be overriden in the 
+## child class, if it supports it.
+func update(item: LibraryLaunchItem) -> void:
+	pass
+
+
+## Should return true if the given library item has an update available
+func has_update(item: LibraryLaunchItem) -> bool:
+	return false
+
+
+## Uninstalls the given library item. This method should be overriden in the 
+## child class if it supports it.
+func uninstall(item: LibraryLaunchItem) -> void:
+	pass
+
+
+## Move the given library item to the given install location. This method should
+## be overriden in the child class if it supports it.
+func move(item: LibraryLaunchItem, to_location: InstallLocation) -> void:
+	pass
+
+
 func _exit_tree() -> void:
-	LibraryManager.unregister_library(self)
+	library_manager.unregister_library(self)
+
+
+## InstallLocation defines a place where a [LibraryLaunchItem] can be installed.
+class InstallLocation extends RefCounted:
+	var id: String
+	var name: String
+	var description: String
+	var icon: Texture2D
+	var total_space_mb: int
+	var free_space_mb: int
+
+
+## InstallOption defines an arbitrary install option for a [LibraryLaunchitem].
+class InstallOption extends RefCounted:
+	var id: String
+	var name: String
+	var description: String
+	var values: Array[Variant]
+	var value_type: int

@@ -18,15 +18,17 @@ var logger := Log.get_logger("GameLaunchMenu")
 
 @export var launch_item: LibraryLaunchItem
 
-@onready var banner: TextureRect = $%BannerTexture
-@onready var logo: TextureRect = $%LogoTexture
-@onready var launch_button := $%LaunchButton
-@onready var loading: Control = $%LoadingAnimation
-@onready var player := $%AnimationPlayer
-@onready var progress_container := $%ProgressContainer
-@onready var progress_bar: ProgressBar = $%ProgressBar
-@onready var delete_container := $%DeleteContainer
-@onready var delete_button := $%DeleteButton
+@onready var banner := $%BannerTexture as TextureRect
+@onready var logo := $%LogoTexture as TextureRect
+@onready var launch_button := $%LaunchButton as CardButton
+@onready var loading := $%LoadingAnimation as Control
+@onready var player := $%AnimationPlayer as AnimationPlayer
+@onready var progress_container := $%ProgressContainer as MarginContainer
+@onready var progress_bar := $%ProgressBar as ProgressBar
+@onready var delete_container := $%DeleteContainer as MarginContainer
+@onready var delete_button := $%DeleteButton as CardIconButton
+@onready var location_menu := $%InstallLocationDialog as InstallLocationDialog
+@onready var options_menu := $%InstallOptionsDialog as InstallOptionDialog
 
 
 # Called when the node enters the scene tree for the first time.
@@ -55,7 +57,11 @@ func _process(_delta: float) -> void:
 func _on_state_entered(_from: State) -> void:
 	# Fade in the banner texture
 	player.play("fade_in")
-	
+
+	# Ensure dialogs are hidden
+	location_menu.visible = false
+	options_menu.visible = false
+
 	# Focus the first entry on state change
 	launch_button.grab_focus.call_deferred()
 
@@ -96,11 +102,11 @@ func _on_state_entered(_from: State) -> void:
 
 	# Load the banner for the game
 	var logo_texture = await (
-		BoxArtManager . get_boxart_or_placeholder(library_item, BoxArtProvider.LAYOUT.LOGO)
+		BoxArtManager.get_boxart_or_placeholder(library_item, BoxArtProvider.LAYOUT.LOGO)
 	)
 	logo.texture = logo_texture
 	var banner_texture = await (
-		BoxArtManager . get_boxart_or_placeholder(library_item, BoxArtProvider.LAYOUT.BANNER)
+		BoxArtManager.get_boxart_or_placeholder(library_item, BoxArtProvider.LAYOUT.BANNER)
 	)
 	banner.texture = banner_texture
 
@@ -119,15 +125,15 @@ func _update_launch_button() -> void:
 	if not launch_item:
 		return
 	if launch_item.installed:
-		launch_button.text = "Play Now"
+		launch_button.text = tr("Play Now")
 	else:
-		launch_button.text = "Install"
+		launch_button.text = tr("Install")
 	if LaunchManager.is_running(launch_item.name):
-		launch_button.text = "Resume"
+		launch_button.text = tr("Resume")
 	if InstallManager.is_queued(launch_item):
-		launch_button.text = "Queued"
+		launch_button.text = tr("Queued")
 	if InstallManager.is_installing(launch_item):
-		launch_button.text = "Installing"
+		launch_button.text = tr("Installing")
 
 
 func _update_uninstall_button() -> void:
@@ -162,15 +168,49 @@ func _on_install() -> void:
 	# Do nothing if we're already installing
 	if InstallManager.is_queued_or_installing(launch_item):
 		return
-	var notify := Notification.new("Installing " + launch_item.name)
-	NotificationManager.show(notify)
 
-	# Create an install request
+	# Get the library provider for this launch item
 	var provider := LibraryManager.get_library_by_id(launch_item._provider_id)
-	var install_req := InstallManager.Request.new(provider, launch_item)
+
+	# If multiple install locations are available, ask the user where to
+	# install.
+	var location: Library.InstallLocation = null
+	var locations := await provider.get_available_install_locations(launch_item)
+	if locations.size() > 0:
+		# Open the install location menu and wait for the user to select an
+		# install location.
+		location_menu.open(launch_button, locations)
+		var result := await location_menu.choice_selected as Array
+		var accepted := result[0] as bool
+		var choice := result[1] as Library.InstallLocation
+		if not accepted:
+			return
+		location = choice
+	
+	# If install options are available for this library item, ask the user
+	# to select from the options.
+	var options := {}
+	var available_options := await provider.get_install_options(launch_item)
+	if available_options.size() > 0:
+		# Open the install option menu and wait for the user to select install
+		# options.
+		options_menu.open(launch_button, available_options)
+		var result := await options_menu.choice_selected as Array
+		var accepted := result[0] as bool
+		var choices := result[1] as Dictionary
+		if not accepted:
+			return
+		options = choices
+	
+	# Create an install request
+	var install_req := InstallManager.Request.new(provider, launch_item, location, options)
 
 	# Update the progress bar with install progress of the request
 	progress_bar.value = 0
+
+	# Display a notification
+	var notify := Notification.new("Installing " + launch_item.name)
+	NotificationManager.show(notify)
 
 	# Start the install
 	InstallManager.install(install_req)

@@ -89,12 +89,16 @@ func _process_install_queue() -> void:
 	# Install the given application using the given provider
 	install_started.emit(req)
 	var result: Array
-	if req._type == REQUEST_TYPE.INSTALL:
-		req.provider.install(req.item)
-		result = await req.provider.install_completed
-	else:
-		req.provider.update(req.item)
-		result = await req.provider.update_completed
+	match req._type:
+		REQUEST_TYPE.INSTALL:
+			req.provider.install_to(req.item, req.location, req.options)
+			result = await req.provider.install_completed
+		REQUEST_TYPE.UPDATE:
+			req.provider.update(req.item)
+			result = await req.provider.update_completed
+		_:
+			logger.warn("Unknown request type:", req._type)
+			result = [req.item, false]
 	req.success = result[1]
 	logger.info("Install of '" + req.item.name + "' completed with success: " + str(req.success))
 	
@@ -116,10 +120,14 @@ class Request extends RefCounted:
 	signal completed(success: bool)
 	var provider: Library
 	var item: LibraryLaunchItem
+	var location: Library.InstallLocation
+	var options: Dictionary
 	var progress: float
 	var success: bool
 	var _type: REQUEST_TYPE
 	
-	func _init(library_provider: Library, launch_item: LibraryLaunchItem) -> void:
+	func _init(library_provider: Library, launch_item: LibraryLaunchItem, to_location: Library.InstallLocation = null, opts: Dictionary = {}) -> void:
 		provider = library_provider
 		item = launch_item
+		location = to_location
+		options = opts
